@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.5/redux.js"></script>
 </head>
 <body>
     <div id="subject"></div>
@@ -22,11 +23,20 @@
         }
 
         function TOC() {
+            var state = store.getState()
+            console.log(state)
+            var list = '';
+            for(let id in state.contents) {
+                list += `<li>
+                    <a href=${state.contents[id].id}>
+                        ${state.contents[id].title}
+                    </a>
+                </li>`
+            }
             document.querySelector('#TOC').innerHTML = `
                 <nav>
                     <ol>
-                        <li><a href="1.html">HTML</a></li>
-                        <li><a href="2.html">CSS</a></li>
+                        ${list}
                     </ol>
                 </nav>
             `
@@ -49,6 +59,19 @@
                 </article>
             `
         }
+
+        function reducer(state, action) {
+            if(state===undefined) {
+                return {
+                    contents:[
+                        {id:1, title:'HTML', desc:'HTML is ...'},
+                        {id:2, title:'CSS', desc:'CSS is ...'},
+                    ]
+                }
+            }
+        }
+
+        var store = Redux.createStore(reducer)
 
         subject()
         TOC()

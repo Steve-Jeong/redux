@@ -24,8 +24,9 @@
     function reducer(state, action) {
       console.log('reducer \n\tstate: ', state, '\n\taction : ', action);
       if (state === undefined) {
+        console.log('state is not defined yet')
         return {
-          colooor: 'yellow'
+          colooor: 'red'
         };
       }
       var newState = {};

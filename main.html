@@ -28,7 +28,13 @@
             var list = '';
             for(let id in state.contents) {
                 list += `<li>
-                    <a href=${state.contents[id].id}>
+                    <a onclick="
+                        event.preventDefault()
+                        var action = {type:'SELECT', id:${state.contents[id].id}}
+                        store.dispatch(action)
+
+                    "
+                    href=${state.contents[id].id}>
                         ${state.contents[id].title}
                     </a>
                 </li>`
@@ -63,12 +69,20 @@
         function reducer(state, action) {
             if(state===undefined) {
                 return {
+                    selected_id : null,
                     contents:[
                         {id:1, title:'HTML', desc:'HTML is ...'},
                         {id:2, title:'CSS', desc:'CSS is ...'},
                     ]
                 }
             }
+
+            var newState = null
+            if(action.type === "SELECT") {
+                newState = Object.assign({}, state, {selected_id:action.id})
+            }
+            console.log(action, state, newState)
+            return newState
         }
 
         var store = Redux.createStore(reducer)

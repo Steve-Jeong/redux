@@ -51,7 +51,10 @@
         function control() {
             document.querySelector('#control').innerHTML = `
                 <ul>
-                    <li><a href="/create">Create</a></li>
+                    <li><a onclick="
+                        event.preventDefault()
+                        "
+                        href="/create">Create</a></li>
                     <li><input type="button" value="Delete"></input></li>
                 </ul>
             `
@@ -59,28 +62,59 @@
 
         function article() {
             var state = store.getState()
-            let _title = ''
-            let _desc = ''
-            let i=0
-            while(i<state.contents.length) {
-                if(state.selected_id === state.contents[i].id) {
-                    _title = state.contents[i].title
-                    _desc = state.contents[i].desc
-                    break
+            if(state.mode === 'create') {
+                document.querySelector('#article').innerHTML = `
+                    <article>
+                        <form onsubmit="
+                            event.preventDefault()
+                            var title = this.title.value
+                            var desc = this.desc.value
+                            console.log(title, ' -> ', desc)
+                            store.dispatch({
+                                type:'CREATE',
+                                title:title,
+                                desc:desc
+                            })
+                        ">
+                            <p>
+                                <input type="text" name="title" placeholder="title"
+                            </p>
+                            <p>
+                                <input type="textarea" name="desc" placeholder="description"
+                            </p>
+                            <p>
+                                <input type="submit"></input>
+                            </p>
+                        </form>
+                    </article>
+                `
+            } else if(state.mode === 'read') {
+                let _title = ''
+                let _desc = ''
+                let i=0
+                while(i<state.contents.length) {
+                    if(state.selected_id === state.contents[i].id) {
+                        _title = state.contents[i].title
+                        _desc = state.contents[i].desc
+                        break
+                    }
+                    i++
                 }
-                i++
+                document.querySelector('#article').innerHTML = `
+                    <article>
+                        <h2>${_title}</h2>
+                        ${_desc}
+                    </article>
+                `
             }
-            document.querySelector('#article').innerHTML = `
-                <article>
-                    <h2>${_title}</h2>
-                    ${_desc}
-                </article>
-            `
+            
         }
 
         function reducer(state, action) {
             if(state===undefined) {
                 return {
+                    mode:'read',
+                    max_id:2,
                     selected_id : 1,
                     contents:[
                         {id:1, title:'HTML', desc:'HTML is ...'},
@@ -92,14 +126,25 @@
             var newState = null
             if(action.type === "SELECT") {
                 newState = Object.assign({}, state, {selected_id:action.id})
+            } else if(action.type === 'CREATE') {
+                var newContents = state.contents.concat()
+                var newMaxId = state.max_id + 1
+                newContents.push({id:newMaxId, title:action.title, desc:action.desc})
+                newState = Object.assign({}, {
+                    max_id:newMaxId,
+                    contents : newContents,
+                    mode:'read'
+                })
             }
             console.log(action, state, newState)
             return newState
         }
 
-        var store = Redux.createStore(reducer)
+        var store = Redux.createStore(reducer,
+                window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 
         store.subscribe(article)
+        store.subscribe(TOC)
         subject()
         TOC()
         control()

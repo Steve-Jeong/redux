@@ -53,6 +53,8 @@
                 <ul>
                     <li><a onclick="
                         event.preventDefault()
+                        var action = {type:'SELECT_CREATE', mode:'create'}
+                        store.dispatch(action)
                         "
                         href="/create">Create</a></li>
                     <li><input type="button" value="Delete"></input></li>
@@ -133,8 +135,11 @@
                 newState = Object.assign({}, {
                     max_id:newMaxId,
                     contents : newContents,
-                    mode:'read'
+                    mode:'read',
+                    selected_id:newMaxId
                 })
+            } else if(action.type === 'SELECT_CREATE') {
+                newState = Object.assign({}, state, {mode:action.mode})
             }
             console.log(action, state, newState)
             return newState
